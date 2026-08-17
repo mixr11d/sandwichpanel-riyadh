@@ -156,7 +156,7 @@ button, input, select, textarea {
   color: var(--accent);
 }
 
-/* Dropdown */
+/* القائمة المنسدلة */
 .dropdown {
   position: relative;
 }
@@ -220,7 +220,6 @@ button, input, select, textarea {
   transform: translateY(-1px);
 }
 
-/* زر القائمة للشاشات الصغيرة */
 .mobile-menu-btn {
   display: none;
   background: transparent;
@@ -231,7 +230,7 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   القائمة الجانبية المستقلة للجوال (Native Direct Touch Sidebar)
+   القائمة الجانبية المستقلة للجوال
    ========================================================================== */
 .mobile-sidebar {
   position: fixed;
@@ -317,7 +316,7 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   البطل (Hero Section) والتحويل السريع
+   قسم الهيرو والنماذج
    ========================================================================== */
 .hero {
   position: relative;
@@ -446,7 +445,6 @@ button, input, select, textarea {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* كارد النموذج الذكي داخل الهيرو أو الأقسام */
 .lead-form-card {
   background: #ffffff;
   color: var(--text);
@@ -533,7 +531,7 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   الأقسام العامة والبطاقات
+   الأقسام والبطاقات
    ========================================================================== */
 .section {
   padding: 4.5rem 0;
@@ -668,7 +666,6 @@ button, input, select, textarea {
   gap: 0.7rem;
 }
 
-/* ميزات المواصفات */
 .feature-box {
   background: var(--surface);
   padding: 1.75rem;
@@ -707,7 +704,6 @@ button, input, select, textarea {
   color: var(--text-muted);
 }
 
-/* جدول مقارنة الأسعار والمواصفات */
 .table-wrapper {
   overflow-x: auto;
   background: #fff;
@@ -743,16 +739,26 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   الأزرار العائمة المحقونة (Floating CTA Buttons)
+   توزيع الأزرار العائمة المحسّن (الاتصال والواتس يمين | الصعود يسار)
    ========================================================================== */
-.floating-actions-container {
+
+/* حاوية أزرار التواصل (أسفل اليمين لسهولة نقر الإبهام) */
+.floating-contact-container {
   position: fixed;
   bottom: 24px;
-  left: 24px;
+  right: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   z-index: 999;
+}
+
+/* حاوية زر الصعود للأعلى (أسفل اليسار بشكل مستقل تماماً) */
+.floating-scrolltop-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 998;
 }
 
 .floating-btn {
@@ -763,9 +769,9 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   position: relative;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 .floating-btn:hover {
@@ -784,9 +790,9 @@ button, input, select, textarea {
 
 .floating-scrolltop {
   background: var(--primary);
-  width: 44px;
-  height: 44px;
-  margin-left: 6px;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
   opacity: 0;
   visibility: hidden;
   transition: var(--transition);
@@ -810,7 +816,7 @@ button, input, select, textarea {
 }
 
 /* ==========================================================================
-   التذييل الغني الشامل (Rich Footer)
+   الفوتر الغني
    ========================================================================== */
 .site-footer {
   background: #0b1120;
@@ -914,9 +920,6 @@ button, input, select, textarea {
   text-decoration: underline;
 }
 
-/* ==========================================================================
-   الملاءمة مع الشاشات الصغيرة (Mobile Responsive)
-   ========================================================================== */
 @media (max-width: 991px) {
   .hero-grid {
     grid-template-columns: 1fr;
@@ -953,12 +956,20 @@ button, input, select, textarea {
   .section-title {
     font-size: 1.6rem;
   }
-  .floating-actions-container {
+  .floating-contact-container {
+    bottom: 16px;
+    right: 16px;
+  }
+  .floating-scrolltop-container {
     bottom: 16px;
     left: 16px;
   }
   .floating-btn {
     width: 50px;
     height: 50px;
+  }
+  .floating-scrolltop {
+    width: 44px;
+    height: 44px;
   }
 }
