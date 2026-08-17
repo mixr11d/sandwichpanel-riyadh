@@ -1,22 +1,19 @@
 /**
  * مؤسسة أعمال الساندوتش بانل بالرياض - المحرك البرمجي الموحد
- * تحسين التحويلات + تتبع إعلانات جوجل + حقن أزرار الاتصال والواتساب
+ * تحديث: الاتصال والواتس في اليمين | الصعود للأعلى في اليسار
  */
 
-// ==========================================
-// 1. الإعدادات المركزية وإعلانات Google Ads
-// ==========================================
 const CONFIG = {
   CLIENT_PHONE: "0534234287",
   CLIENT_WHATSAPP: "966534234287",
   DEV_PHONE_EXCLUDED: "966578539687",
-  GOOGLE_ADS_ID: "AW-123456789", // استبدل بمعرف إعلاناتك
+  GOOGLE_ADS_ID: "AW-123456789",
   CONVERSION_LABEL_CALL: "AbCdEfGhIjK_CALL",
   CONVERSION_LABEL_WHATSAPP: "AbCdEfGhIjK_WHATS",
   CONVERSION_LABEL_FORM: "AbCdEfGhIjK_FORM"
 };
 
-// دالة تتبع التحويلات الرسمية
+// تتبع التحويلات
 function trackConversion(type, redirectUrl) {
   if (typeof gtag === 'function' && CONFIG.GOOGLE_ADS_ID !== 'AW-123456789') {
     let label = CONFIG.CONVERSION_LABEL_CALL;
@@ -34,13 +31,11 @@ function trackConversion(type, redirectUrl) {
   }
 }
 
-// ==========================================
-// 2. حقن الأزرار العائمة تلقائياً لكافة الصفحات
-// ==========================================
+// حقن الأزرار وإدارة التفاعل
 document.addEventListener('DOMContentLoaded', () => {
-  // حقن الأزرار العائمة
-  const floatingHtml = `
-    <div class="floating-actions-container" aria-label="أزرار التواصل السريع">
+  // 1. حقن أزرار الاتصال والواتساب في أسفل اليمين
+  const contactButtonsHtml = `
+    <div class="floating-contact-container" aria-label="أزرار التواصل السريع">
       <a href="https://wa.me/${CONFIG.CLIENT_WHATSAPP}?text=${encodeURIComponent('السلام عليكم، أود الاستفسار عن تفاصيل وأسعار تركيب الساندوتش بانل بالرياض')}" 
          class="floating-btn floating-whatsapp" 
          id="btnFloatWhatsapp" 
@@ -55,23 +50,25 @@ document.addEventListener('DOMContentLoaded', () => {
          aria-label="اتصال هاتفي مباشر">
         <svg width="26" height="26" fill="currentColor" viewBox="0 0 24 24"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 00-1.02.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1A11.36 11.36 0 018.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM19 12h2a9 9 0 00-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/></svg>
       </a>
+    </div>
+  `;
+
+  // 2. حقن زر الصعود للأعلى في أسفل اليسار بشكل منفصل
+  const scrollTopHtml = `
+    <div class="floating-scrolltop-container" aria-label="الرجوع للأعلى">
       <button class="floating-btn floating-scrolltop" id="btnScrollTop" aria-label="العودة لأعلى الصفحة">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
       </button>
     </div>
   `;
-  document.body.insertAdjacentHTML('beforeend', floatingHtml);
 
-  // ربط أحداث الأزرار العائمة
-  document.getElementById('btnFloatWhatsapp')?.addEventListener('click', () => {
-    trackConversion('whatsapp');
-  });
+  document.body.insertAdjacentHTML('beforeend', contactButtonsHtml);
+  document.body.insertAdjacentHTML('beforeend', scrollTopHtml);
 
-  document.getElementById('btnFloatCall')?.addEventListener('click', () => {
-    trackConversion('call');
-  });
+  // ربط أحداث النقرات
+  document.getElementById('btnFloatWhatsapp')?.addEventListener('click', () => trackConversion('whatsapp'));
+  document.getElementById('btnFloatCall')?.addEventListener('click', () => trackConversion('call'));
 
-  // التمرير لأعلى
   const btnScrollTop = document.getElementById('btnScrollTop');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 350) {
@@ -80,11 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
       btnScrollTop?.classList.remove('visible');
     }
   });
+
   btnScrollTop?.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // تتبع جميع روابط الاتصال والواتساب بالموقع تلقائياً (باستثناء رقم المطور)
+  // تتبع روابط الموقع
   document.querySelectorAll('a[href^="tel:"]').forEach(link => {
     if (!link.href.includes(CONFIG.DEV_PHONE_EXCLUDED)) {
       link.addEventListener('click', () => trackConversion('call'));
@@ -97,9 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ==========================================
-  // 3. إدارة القائمة الجانبية المباشرة للجوال
-  // ==========================================
+  // القائمة الجانبية
   const menuBtn = document.querySelector('.mobile-menu-btn');
   const sidebar = document.querySelector('.mobile-sidebar');
   const closeSidebarBtn = document.querySelector('.close-sidebar-btn');
@@ -107,15 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const submenu = document.querySelector('.mobile-submenu');
 
   if (menuBtn && sidebar) {
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.add('open');
-    });
+    menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
   }
 
   if (closeSidebarBtn && sidebar) {
-    closeSidebarBtn.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-    });
+    closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('open'));
   }
 
   if (submenuToggle && submenu) {
@@ -125,14 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==========================================
-  // 4. معالجة نموذج طلب المعاينة والتحويل للواتساب
-  // ==========================================
+  // معالجة نموذج المعاينة والتحويل للواتساب
   const quoteForm = document.getElementById('leadQuoteForm');
   if (quoteForm) {
     quoteForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      
       const name = document.getElementById('formName')?.value || 'غير محدد';
       const phone = document.getElementById('formPhone')?.value || 'غير محدد';
       const service = document.getElementById('formService')?.value || 'طلب عام';
