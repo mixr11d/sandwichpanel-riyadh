@@ -1,0 +1,54 @@
+# ==============================================================================
+# robots.txt - مؤسسة أعمال الساندوتش بانل في الرياض
+# الموقع مهيأ بالكامل لجميع محركات البحث وعناكب الذكاء الاصطناعي
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /images/
+Allow: /style.css
+Allow: /script.js
+
+# السماح الكامل لكافة صفحات الخدمات الرئيسية
+Allow: /index.html
+Allow: /sandwich-panel-installation.html
+Allow: /sandwich-panel-roofs.html
+Allow: /sandwich-panel-warehouses.html
+Allow: /sandwich-panel-hangars.html
+Allow: /sandwich-panel-annexes.html
+Allow: /sandwich-panel-rooms.html
+Allow: /sandwich-panel-majlis.html
+Allow: /sandwich-panel-cold-storage.html
+Allow: /sandwich-panel-prices.html
+Allow: /about-us.html
+Allow: /contact-us.html
+Allow: /faq.html
+Allow: /warranty.html
+Allow: /privacy-policy.html
+Allow: /terms-conditions.html
+
+# منع أرشفة صفحة الخطأ 404
+Disallow: /404.html
+
+# تخصيص روبوتات محركات البحث العالمية
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /images/
+
+User-agent: Bingbot
+Allow: /
+
+# تخصيص عناكب الذكاء الاصطناعي ونماذج التوليد الحديثة
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# رابط خريطة الموقع الرسمية (Sitemap)
+Sitemap: https://example.com/sitemap.xml
