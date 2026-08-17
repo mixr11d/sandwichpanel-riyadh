@@ -51,4 +51,4 @@ User-agent: PerplexityBot
 Allow: /
 
 # رابط خريطة الموقع الرسمية (Sitemap)
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://sandwichpanel-riyadh.pages.dev/sitemap.xml
