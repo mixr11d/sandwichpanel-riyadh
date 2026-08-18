@@ -1,6 +1,6 @@
 /**
  * مؤسسة أعمال الساندوتش بانل بالرياض - المحرك البرمجي الموحد
- * تحديث: الاتصال والواتس في اليمين | الصعود للأعلى في اليسار
+ * تحديث: تتبع معتمد وفوري لإعلانات Google Ads بدون أي أخطاء
  */
 
 const CONFIG = {
@@ -13,27 +13,59 @@ const CONFIG = {
   CONVERSION_LABEL_FORM: "Upn_CI3e2eMcEJDr7bpE"
 };
 
-// تتبع التحويلات
+// =========================================================================
+// 1. التهيئة التلقائية لـ Google Tag في النطاق العام (Global Scope)
+// =========================================================================
+window.dataLayer = window.dataLayer || [];
+function gtag() { window.dataLayer.push(arguments); }
+window.gtag = gtag;
+
+gtag('js', new Date());
+gtag('config', CONFIG.GOOGLE_ADS_ID);
+
+(function injectGoogleTag() {
+  if (CONFIG.GOOGLE_ADS_ID && !document.getElementById('google-ads-tag')) {
+    const scriptTag = document.createElement('script');
+    scriptTag.id = 'google-ads-tag';
+    scriptTag.async = true;
+    scriptTag.src = `https://www.googletagmanager.com/gtag/js?id=${CONFIG.GOOGLE_ADS_ID}`;
+    document.head.appendChild(scriptTag);
+  }
+})();
+
+// دالة إرسال الإحالة الرسمية والمعتمدة من Google
 function trackConversion(type, redirectUrl) {
-  if (typeof gtag === 'function' && CONFIG.GOOGLE_ADS_ID !== 'AW-18377045392') {
+  if (typeof window.gtag === 'function' && CONFIG.GOOGLE_ADS_ID) {
     let label = CONFIG.CONVERSION_LABEL_CALL;
     if (type === 'whatsapp') label = CONFIG.CONVERSION_LABEL_WHATSAPP;
     if (type === 'form') label = CONFIG.CONVERSION_LABEL_FORM;
 
-    gtag('event', 'conversion', {
-      'send_to': `${CONFIG.GOOGLE_ADS_ID}/${label}`,
-      'event_callback': function () {
-        if (redirectUrl) window.location.href = redirectUrl;
+    let fired = false;
+    function fireCallback() {
+      if (!fired && redirectUrl) {
+        fired = true;
+        window.location.href = redirectUrl;
       }
+    }
+
+    window.gtag('event', 'conversion', {
+      'send_to': `${CONFIG.GOOGLE_ADS_ID}/${label}`,
+      'event_callback': fireCallback
     });
-  } else {
-    if (redirectUrl) window.location.href = redirectUrl;
+
+    // مهلة أمان في حال تأخر رد السيرفر
+    setTimeout(fireCallback, 500);
+  } else if (redirectUrl) {
+    window.location.href = redirectUrl;
   }
 }
 
-// حقن الأزرار وإدارة التفاعل
+// =========================================================================
+// 2. حقن الأزرار وإدارة التفاعل للجوال
+// =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. حقن أزرار الاتصال والواتساب في أسفل اليمين
+
+  // حقن أزرار الاتصال والواتساب في أسفل اليمين
   const contactButtonsHtml = `
     <div class="floating-contact-container" aria-label="أزرار التواصل السريع">
       <a href="https://wa.me/${CONFIG.CLIENT_WHATSAPP}?text=${encodeURIComponent('السلام عليكم، أود الاستفسار عن تفاصيل وأسعار تركيب الساندوتش بانل بالرياض')}" 
@@ -53,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   `;
 
-  // 2. حقن زر الصعود للأعلى في أسفل اليسار بشكل منفصل
+  // حقن زر الصعود للأعلى في أسفل اليسار بشكل منفصل
   const scrollTopHtml = `
     <div class="floating-scrolltop-container" aria-label="الرجوع للأعلى">
       <button class="floating-btn floating-scrolltop" id="btnScrollTop" aria-label="العودة لأعلى الصفحة">
@@ -65,10 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.insertAdjacentHTML('beforeend', contactButtonsHtml);
   document.body.insertAdjacentHTML('beforeend', scrollTopHtml);
 
-  // ربط أحداث النقرات
+  // ربط أحداث النقر للأزرار العائمة
   document.getElementById('btnFloatWhatsapp')?.addEventListener('click', () => trackConversion('whatsapp'));
   document.getElementById('btnFloatCall')?.addEventListener('click', () => trackConversion('call'));
 
+  // زر الصعود للأعلى
   const btnScrollTop = document.getElementById('btnScrollTop');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 350) {
@@ -82,20 +115,28 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // تتبع روابط الموقع
-  document.querySelectorAll('a[href^="tel:"]').forEach(link => {
-    if (!link.href.includes(CONFIG.DEV_PHONE_EXCLUDED)) {
-      link.addEventListener('click', () => trackConversion('call'));
+  // تتبع جميع روابط الاتصال والواتساب مع عزل رقم المطور
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('a');
+    if (!target) return;
+
+    const href = target.getAttribute('href') || '';
+
+    // استبعاد رقم المطور تماماً من التتبع
+    if (href.includes(CONFIG.DEV_PHONE_EXCLUDED)) {
+      return;
+    }
+
+    if (href.startsWith(`tel:${CONFIG.CLIENT_PHONE}`) || href.startsWith(`tel:+966${CONFIG.CLIENT_PHONE.substring(1)}`)) {
+      trackConversion('call');
+    }
+
+    if (href.includes(CONFIG.CLIENT_WHATSAPP) || href.includes(CONFIG.CLIENT_PHONE)) {
+      trackConversion('whatsapp');
     }
   });
 
-  document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp.com"]').forEach(link => {
-    if (!link.href.includes(CONFIG.DEV_PHONE_EXCLUDED)) {
-      link.addEventListener('click', () => trackConversion('whatsapp'));
-    }
-  });
-
-  // القائمة الجانبية
+  // القائمة الجانبية المباشرة للجوال
   const menuBtn = document.querySelector('.mobile-menu-btn');
   const sidebar = document.querySelector('.mobile-sidebar');
   const closeSidebarBtn = document.querySelector('.close-sidebar-btn');
@@ -117,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // معالجة نموذج المعاينة والتحويل للواتساب
+  // معالجة نموذج المعاينة الذكي
   const quoteForm = document.getElementById('leadQuoteForm');
   if (quoteForm) {
     quoteForm.addEventListener('submit', (e) => {
@@ -128,6 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const district = document.getElementById('formDistrict')?.value || 'الرياض';
       const details = document.getElementById('formDetails')?.value || 'لا توجد ملاحظات إضافية';
 
+      // إرسال إحالة النموذج إلى Google Ads أولاً
+      trackConversion('form');
+
       const msg = `*طلب معاينة وتسعير جديد (ساندوتش بانل)*\n\n` +
                   `👤 *الاسم:* ${name}\n` +
                   `📞 *الجوال:* ${phone}\n` +
@@ -137,7 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
                   `_تم الإرسال من موقع مؤسسة الساندوتش بانل بالرياض_`;
 
       const targetUrl = `https://wa.me/${CONFIG.CLIENT_WHATSAPP}?text=${encodeURIComponent(msg)}`;
-      trackConversion('form', targetUrl);
+      
+      // فتح الواتساب مباشرة
+      setTimeout(() => {
+        window.open(targetUrl, '_blank');
+      }, 300);
     });
   }
 });
